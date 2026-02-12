@@ -9,4 +9,4 @@ jobs:
     steps:
       - name: check repository code
         uses: actions/checkout@v4
-      - run: echo"$(cat demo-flask-ci-cd.txt)"
+      - run: echo "$(cat demo-flask-ci-cd.txt)"
