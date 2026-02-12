@@ -1,0 +1,12 @@
+name: demo-flask-ci-cd
+
+on: push
+
+jobs:
+  demo-flask-ci-cd-job:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: check repository code
+      - uses: actions/checkout@v4
+      - run: echo"$(cat demo-flask-ci-cd.txt)"
