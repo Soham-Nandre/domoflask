@@ -1,5 +1,5 @@
 ```yaml
-name: CI/CD Pipeline for Flask Application
+name: CI/CD Pipeline
 
 on:
   push:
@@ -9,85 +9,79 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code
-      - name: Checkout repository
+      # Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Set up Python environment and dependencies
+      # Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: '3.9'
 
-      - name: Create virtual environment
-        run: python -m venv venv
+      # Create a virtual environment
+      - name: Create Python Virtual Environment
+        run: python3 -m venv venv
 
-      - name: Install dependencies
+      # Install dependencies
+      - name: Install Dependencies
         run: |
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Run Tests (Ensure the database is simulated for testing)
-      - name: Run tests
-        env:
-          MYSQL_HOST: localhost
-          MYSQL_USER: test_user
-          MYSQL_PASSWORD: test_password
-          MYSQL_DB: test_db
+      # Run tests
+      - name: Run Tests
         run: |
           source venv/bin/activate
-          # Assume the app has test scripts or can be tested manually
-          python -m unittest discover
+          python -m unittest discover -s tests
 
-      # Package the artifact for deployment
-      - name: Generate deployment artifact
+      # Package application as an artifact for deployment
+      - name: Prepare Artifact for Deployment
         run: |
           mkdir -p build
-          cp -r app.py requirements.txt build/
-          cp -r templates build/templates/  # Include templates if they exist
-          cp -r static build/static/        # Include static files if they exist
-          echo "Deployment artifact created."
-
-      # Upload the artifact for later deployment
-      - name: Upload artifact
+          cp -r app.py venv requirements.txt build/
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: flask-app-artifact
-          path: build/
+          name: build
+          path: build
 
   deploy:
-    name: Deploy Application
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-      # Download the artifact created in the build step
-      - name: Download artifact
+      # Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Download artifact
+      - name: Download Build Artifact
         uses: actions/download-artifact@v3
         with:
-          name: flask-app-artifact
-          path: build/
+          name: build
+          path: build
 
-      # Establish SSH connection
-      - name: Establish SSH connection
+      # Set up SSH
+      - name: Establish SSH Connection
         run: |
           mkdir -p ~/.ssh
           printf "%s" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 700 ~/.ssh
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+
           ssh -i ~/.ssh/id_rsa ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo SSH connection successful"
 
       # Transfer artifact to VM
-      - name: Transfer artifact to VM
+      - name: Transfer Artifact to VM
         run: |
-          scp -i ~/.ssh/id_rsa -r build/* ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USER }}/flask-app/
+          scp -i ~/.ssh/id_rsa -r build/* ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USER }}/app/
 
       # Deploy application on VM
       - name: Deploy Application
@@ -101,38 +95,55 @@ jobs:
           set -e
           echo "Starting deployment on VM..."
 
-          # Ensure deployment directory exists
-          mkdir -p /home/${{ secrets.VM_USER }}/flask-app
+          # Create deployment directory if it doesn't exist
+          mkdir -p /home/${{ secrets.VM_USER }}/app
 
-          # Install Python and dependencies if missing
-          sudo apt-get update
-          sudo apt-get install -y python3 python3-venv python3-pip
+          # Stop existing application process if running
+          pkill -f "python app.py" || echo "No existing app process running"
 
-          # Set up virtual environment for Flask application
-          cd /home/${{ secrets.VM_USER }}/flask-app
+          # Enter deployment directory
+          cd /home/${{ secrets.VM_USER }}/app
+
+          # Set up Python virtual environment
           python3 -m venv venv
           source venv/bin/activate
+
+          # Install dependencies
           pip install --upgrade pip
           pip install -r requirements.txt
 
-          # Ensure MySQL is installed and configured
-          if ! command -v mysql >/dev/null; then
-            sudo apt-get install -y mysql-server
-          fi
+          # Export environment variables for database connection
+          export MYSQL_HOST=${{ secrets.MYSQL_HOST }}
+          export MYSQL_USER=${{ secrets.MYSQL_USER }}
+          export MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          export MYSQL_DB=${{ secrets.MYSQL_DB }}
 
-          # Set up MySQL database
-          sudo mysql -u root <<MYSQL_SETUP
-          CREATE DATABASE IF NOT EXISTS ${MYSQL_DB};
-          CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-          GRANT ALL ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'%';
-          FLUSH PRIVILEGES;
-MYSQL_SETUP
+          # Ensure the database table is created
+          python -c "
+import os
+from flask_mysqldb import MySQL
+from flask import Flask
 
-          # Restart MySQL for changes to take effect
-          sudo systemctl restart mysql
+app = Flask(__name__)
+app.config['MYSQL_HOST'] = os.environ['MYSQL_HOST']
+app.config['MYSQL_USER'] = os.environ['MYSQL_USER']
+app.config['MYSQL_PASSWORD'] = os.environ['MYSQL_PASSWORD']
+app.config['MYSQL_DB'] = os.environ['MYSQL_DB']
+mysql = MySQL(app)
 
-          # Start the Flask application
-          nohup python app.py > flask-app.log 2>&1 &
-          echo "Application deployed and started successfully!"
+with app.app_context():
+    conn = mysql.connection.cursor()
+    conn.execute('''
+CREATE TABLE IF NOT EXISTS messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    message TEXT
+);
+''')
+    mysql.connection.commit()
+"
+
+          # Start application
+          nohup python app.py > app.log 2>&1 &
+          echo "Application started successfully!"
 EOF
-```
+``` 
