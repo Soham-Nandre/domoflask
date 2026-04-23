@@ -1,0 +1,142 @@
+```yaml
+name: CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    name: Build and Test Application
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Python environment
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # Step 3: Create isolated Python environment
+      - name: Create virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+      # Step 5: Run tests
+      - name: Run tests
+        run: |
+          source venv/bin/activate
+          python -m unittest discover
+
+      # Step 6: Build artifact
+      - name: Package deployment artifact
+        run: |
+          mkdir -p build
+          cp -R app.py venv requirements.txt build/
+      # Upload artifact for later use in deployment
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-artifact
+          path: build
+
+  deploy:
+    name: Deploy Application to VM
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Download build artifact
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: deployment-artifact
+          path: build
+
+      # Step 3: Setup SSH Connection
+      - name: Establish SSH connection
+        run: |
+          mkdir -p ~/.ssh
+          printf "%s" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 700 ~/.ssh
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_rsa ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo SSH connection successful"
+
+      # Step 4: Transfer build files to Azure VM
+      - name: Transfer artifact to VM
+        run: |
+          scp -i ~/.ssh/id_rsa -r build/* ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/tmp/deployment
+
+      # Step 5: Deploy application remotely
+      - name: Deploy Application
+        env:
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_DB: ${{ secrets.MYSQL_DB }}
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+          set -e
+          echo "Starting deployment on VM..."
+
+          # Ensure deployment directory exists
+          sudo mkdir -p /var/www/myapp
+          sudo cp -R /tmp/deployment/* /var/www/myapp
+
+          # Install Python runtime if not already installed
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-venv
+
+          # Create isolated Python environment
+          cd /var/www/myapp
+          python3 -m venv venv
+          source venv/bin/activate
+
+          # Install dependencies
+          pip install -r requirements.txt
+
+          # Setup database if necessary
+          sudo apt-get install -y mysql-client
+          mysql -h "${MYSQL_HOST}" -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DB};"
+          mysql -h "${MYSQL_HOST}" -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" ${MYSQL_DB} -e "
+            CREATE TABLE IF NOT EXISTS messages (
+              id INT AUTO_INCREMENT PRIMARY KEY,
+              message TEXT
+            );"
+
+          # Export environment variables for the application
+          echo "Exporting environment variables..."
+          export MYSQL_HOST="${MYSQL_HOST}"
+          export MYSQL_USER="${MYSQL_USER}"
+          export MYSQL_PASSWORD="${MYSQL_PASSWORD}"
+          export MYSQL_DB="${MYSQL_DB}"
+
+          # Stop any running instances of the application
+          pkill -f "python app.py" || true
+
+          # Start application
+          nohup venv/bin/python app.py > app.log 2>&1 &
+          echo "Application deployed successfully!"
+          EOF
+```
