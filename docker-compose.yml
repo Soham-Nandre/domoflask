@@ -7,11 +7,13 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - APP_ENV=production
-      - MYSQL_HOST=mysql
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_DB=${MYSQL_DATABASE:-app_db}
+      APP_ENV=production
+      PYTHONUNBUFFERED=1
+      DB_HOST=mysql
+      DB_PORT=3306
+      DB_USER=${MYSQL_USER}
+      DB_PASSWORD=${MYSQL_PASSWORD}
+      DB_NAME=${MYSQL_DATABASE:-app_db}
     depends_on:
       mysql:
         condition: service_healthy
@@ -29,9 +31,9 @@ services:
     container_name: mysql-container
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-app_db}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-app_db}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
