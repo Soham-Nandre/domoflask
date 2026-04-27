@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3                     
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -66,10 +66,7 @@ jobs:
         export MYSQL_DB="${{ secrets.MYSQL_DB }}"
 
         # Initialize database
-        python -c "
-import app;
-app.init_db()
-"
+        python -c "import app;app.init_db()"
 
         # Start the Flask application
         nohup python ~/app/app.py > ~/app/app.log 2>&1 &
