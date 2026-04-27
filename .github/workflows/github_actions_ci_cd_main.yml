@@ -1,140 +1,77 @@
-```yaml
-name: CI/CD Pipeline for Flask App Deployment on Azure VM
+
+name: Deploy Flask Application to Azure VM
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  test-build:
-    runs-on: ubuntu-latest
-    steps:
-      # Step 1: Checkout the code
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      # Step 2: Setup Python environment
-      - name: Setup Python Environment
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-
-      # Step 3: Create a Python virtual environment
-      - name: Create Python Virtual Environment
-        run: python -m venv venv
-
-      # Step 4: Activate virtual environment and install dependencies
-      - name: Install Dependencies
-        run: |
-          source venv/bin/activate
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-        env:
-          MYSQL_HOST: localhost
-          MYSQL_USER: root
-          MYSQL_PASSWORD: password
-          MYSQL_DB: messages
-
-      # Step 5: Run the tests
-      - name: Run Tests
-        run: |
-          source venv/bin/activate
-          python -m unittest discover -s tests
-
-      # Step 6: Build Deployment Artifact
-      - name: Build Deployment Artifact
-        run: |
-          mkdir artifact
-          cp -R app.py message.sql venv artifact/
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: flask-app-artifact
-          path: artifact
-
   deploy:
-    needs: test-build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+
     steps:
-      # Step 1: Download the artifact
-      - name: Download Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: flask-app-artifact
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      # Step 2: Setup SSH agent and add private key
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
 
-      # Step 3: Upload files to Azure VM
-      - name: Upload Files to VM
-        run: |
-          scp -r artifact ${VM_USER}@${VM_HOST}:/home/${VM_USER}/flask-app/
-        env:
-          VM_HOST: ${{ secrets.VM_HOST }}
-          VM_USER: ${{ secrets.VM_USER }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
 
-      # Step 4: SSH into the Azure VM and set up the environment
-      - name: SSH and Deploy
-        run: |
-          ssh ${VM_USER}@${VM_HOST} <<EOF
-          cd /home/${VM_USER}/flask-app
-          python3 -m venv venv
-          source venv/bin/activate
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          
-          # Setup MySQL Database
-          mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DB};"
-          mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DB} < message.sql
-          
-          # Export Environment Variables
-          export MYSQL_HOST=${MYSQL_HOST}
-          export MYSQL_USER=${MYSQL_USER}
-          export MYSQL_PASSWORD=${MYSQL_PASSWORD}
-          export MYSQL_DB=${MYSQL_DB}
+    - name: Generate deployment artifact
+      run: |
+        mkdir -p artifact
+        cp -r app.py requirements.txt templates/ static/ artifact/
 
-          # Start the application
-          nohup python app.py &
-          EOF
-        env:
-          MYSQL_HOST: localhost
-          MYSQL_USER: ${{ secrets.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          MYSQL_DB: messages
-          VM_HOST: ${{ secrets.VM_HOST }}
-          VM_USER: ${{ secrets.VM_USER }}
-```
+    - name: Add SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
 
-### Explanation:
-1. **Pipeline Structure**:
-   - The pipeline is split into two jobs:
-     - `test-build`: Builds and tests the application and creates a deployment artifact.
-     - `deploy`: Deploys the application to the Azure VM (triggered only on `push` to `main`).
-  
-2. **Artifact Creation**:
-   - The `artifact` directory contains the application code, database schema (`message.sql`), and the virtual environment (`venv`).
+    - name: Add VM to known hosts
+      run: |
+        ssh-keyscan -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
 
-3. **Environment Setup**:
-   - A Python virtual environment is created for both testing and deployment to ensure isolation.
-   - The MySQL database is configured using credentials stored securely in GitHub Actions secrets.
+    - name: Transfer artifact to VM
+      run: |
+        scp -r artifact/* ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/app
 
-4. **SSH Deployment**:
-   - Securely connects to the Azure VM using SSH credentials stored in GitHub secrets.
-   - Uploads the artifact and sets up the application environment on the VM.
-   - Initializes the database (`messages`) and starts the Flask app.
+    - name: Deploy application on VM
+      run: |
+        ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+        # Ensure necessary directories exist
+        mkdir -p ~/.ssh ~/app
+        chmod 700 ~/.ssh
 
-5. **Security**:
-   - Secrets like `SSH_PRIVATE_KEY`, `MYSQL_USER`, and `MYSQL_PASSWORD` are accessed securely using GitHub secrets.
-   - No sensitive data is printed in the pipeline logs.
+        # Kill existing app process if running
+        pkill -f "python app.py" || true
 
-6. **Trigger Rules**:
-   - The pipeline runs on `push` to `main` and `pull_request`.
-   - The deployment job runs **only** on `push` to `main`.
+        # Set up Python virtual environment
+        python3 -m venv ~/app/venv
+        source ~/app/venv/bin/activate
+        pip install --upgrade pip
+        pip install -r ~/app/requirements.txt
+
+        # Set environment variables
+        export MYSQL_HOST="${{ secrets.MYSQL_HOST }}"
+        export MYSQL_USER="${{ secrets.MYSQL_USER }}"
+        export MYSQL_PASSWORD="${{ secrets.MYSQL_PASSWORD }}"
+        export MYSQL_DB="${{ secrets.MYSQL_DB }}"
+
+        # Initialize database
+        python -c "
+import app;
+app.init_db()
+"
+
+        # Start the Flask application
+        nohup python ~/app/app.py > ~/app/app.log 2>&1 &
+        EOF
+
