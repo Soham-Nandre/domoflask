@@ -46,7 +46,7 @@ jobs:
 
     - name: Deploy application on VM
       run: |
-        ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << EOF
+        ssh -i ~/.ssh/id_rsa ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << EOF
         # Ensure necessary directories exist
         mkdir -p ~/.ssh ~/app
         chmod 700 ~/.ssh
