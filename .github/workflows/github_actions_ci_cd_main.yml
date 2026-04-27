@@ -45,7 +45,7 @@ jobs:
 
     - name: Transfer artifact to VM
       run: |
-        scp -r artifact/* ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/app
+        scp -i ~/.ssh/id_rsa -r artifact/. ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:~/app/
 
     - name: Deploy application on VM
       run: |
