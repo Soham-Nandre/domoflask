@@ -27,7 +27,7 @@ jobs:
     - name: Generate deployment artifact
       run: |
         mkdir -p artifact
-        cp -r app.py requirements.txt templates/ static/ artifact/
+        cp -r app.py requirements.txt templates/  artifact/
 
     - name: Add SSH key
       run: |
