@@ -77,5 +77,5 @@ jobs:
         python -c "import app;app.init_db()"
 
         # Start the Flask application
-        nohup python ~/app/app.py > ~/app/app.log 2>&1 &
+        nohup ~/app/venv/bin/python ~/app/app.py > ~/app/app.log 2>&1 &
         EOF
