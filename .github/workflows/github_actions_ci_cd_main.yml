@@ -40,9 +40,16 @@ jobs:
         ssh-keyscan -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
 
     - name: Transfer artifact to VM
+      shell: bash
+      env:
+        VM_HOST: ${{ secrets.VM_HOST }}
+        VM_USER: ${{ secrets.VM_USER }}
       run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "mkdir -p /home/${{ secrets.VM_USER }}/app"
-        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r artifact/. "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USER }}/app/"
+        VM_HOST="$(printf '%s' "$VM_HOST" | xargs)"
+        VM_USER="$(printf '%s' "$VM_USER" | xargs)"
+        ssh -i ~/.ssh/id_rsa "$VM_USER@$VM_HOST" "mkdir -p /home/$VM_USER/app"
+        scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r artifact/. "$VM_USER@$VM_HOST:/home/$VM_USER/app/"
+
 
     - name: Deploy application on VM
       run: |
@@ -72,4 +79,3 @@ jobs:
         # Start the Flask application
         nohup python ~/app/app.py > ~/app/app.log 2>&1 &
         EOF
-
