@@ -1,13 +1,9 @@
-version: '3.8'
-
 services:
   app:
     image: ${DOCKERHUB_USERNAME}/${APP_NAME}:${IMAGE_TAG}
     restart: unless-stopped
     env_file:
       - .env
-    volumes:
-      - app_data:/app/data
-
-volumes:
-  app_data:
+    # Note: Application port not specified. Add ports mapping when port is known.
+    # Example: ports:
+    #   - "5000:5000"
