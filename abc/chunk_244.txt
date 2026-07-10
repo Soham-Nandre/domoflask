@@ -1,0 +1,13 @@
+SOURCE_FILE: test_selenium.py
+RELATIVE_PATH: tests\test_selenium.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+# start the Flask server in a thread
+            cls.server_thread = threading.Thread(target=cls.app.run,
+                                                 kwargs={'debug': False})
+            cls.server_thread.start()
+
+            # give the server a second to ensure it is up
+            time.sleep(1)

@@ -1,0 +1,17 @@
+SOURCE_FILE: models.py
+RELATIVE_PATH: app\models.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+@staticmethod
+    def insert_roles():
+        roles = {
+            'User': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE],
+            'Moderator': [Permission.FOLLOW, Permission.COMMENT,
+                          Permission.WRITE, Permission.MODERATE],
+            'Administrator': [Permission.FOLLOW, Permission.COMMENT,
+                              Permission.WRITE, Permission.MODERATE,
+                              Permission.ADMIN],
+        }
+        default_role = 'User'

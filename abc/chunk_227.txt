@@ -1,0 +1,15 @@
+SOURCE_FILE: test_api.py
+RELATIVE_PATH: tests\test_api.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+# get the new comment
+        response = self.client.get(
+            url,
+            headers=self.get_api_headers('john@example.com', 'cat'))
+        self.assertEqual(response.status_code, 200)
+        json_response = json.loads(response.get_data(as_text=True))
+        self.assertEqual('http://localhost' + json_response['url'], url)
+        self.assertEqual(json_response['body'],
+                        'Good [post](http://example.com)!')

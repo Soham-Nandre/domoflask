@@ -1,0 +1,12 @@
+SOURCE_FILE: 38c4e85512a9_initial_migration.py
+RELATIVE_PATH: migrations\versions\38c4e85512a9_initial_migration.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+sa.Column('role_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index('ix_users_username', 'users', ['username'], unique=True)
+    ### end Alembic commands ###

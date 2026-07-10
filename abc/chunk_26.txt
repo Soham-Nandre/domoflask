@@ -1,0 +1,12 @@
+SOURCE_FILE: forms.py
+RELATIVE_PATH: app\auth\forms.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Length(1, 64),
+                                             Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Keep me logged in')
+    submit = SubmitField('Log In')

@@ -1,0 +1,11 @@
+SOURCE_FILE: __init__.py
+RELATIVE_PATH: app\api\__init__.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+from flask import Blueprint
+
+api = Blueprint('api', __name__)
+
+from . import authentication, posts, users, comments, errors

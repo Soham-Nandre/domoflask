@@ -1,0 +1,10 @@
+SOURCE_FILE: forms.py
+RELATIVE_PATH: app\auth\forms.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+class PasswordResetRequestForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Length(1, 64),
+                                             Email()])
+    submit = SubmitField('Reset Password')

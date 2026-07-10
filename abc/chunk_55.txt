@@ -1,0 +1,15 @@
+SOURCE_FILE: email.py
+RELATIVE_PATH: app\email.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+from threading import Thread
+from flask import current_app, render_template
+from flask_mail import Message
+from . import mail
+
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)

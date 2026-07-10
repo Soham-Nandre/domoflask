@@ -1,0 +1,20 @@
+SOURCE_FILE: d66f086b258_user_information.py
+RELATIVE_PATH: migrations\versions\d66f086b258_user_information.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+"""user information
+
+Revision ID: d66f086b258
+Revises: 56ed7d33de8d
+Create Date: 2013-12-29 23:50:49.566954
+
+"""
+
+# revision identifiers, used by Alembic.
+revision = 'd66f086b258'
+down_revision = '56ed7d33de8d'
+
+from alembic import op
+import sqlalchemy as sa

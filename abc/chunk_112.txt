@@ -1,0 +1,9 @@
+SOURCE_FILE: models.py
+RELATIVE_PATH: app\models.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+lazy='dynamic',
+                                cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')

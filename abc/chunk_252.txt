@@ -1,0 +1,12 @@
+SOURCE_FILE: test_user_model.py
+RELATIVE_PATH: tests\test_user_model.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+def test_valid_confirmation_token(self):
+        u = User(password='cat')
+        db.session.add(u)
+        db.session.commit()
+        token = u.generate_confirmation_token()
+        self.assertTrue(u.confirm(token))

@@ -1,0 +1,14 @@
+SOURCE_FILE: config.py
+RELATIVE_PATH: config.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+class ProductionConfig(Config):
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+    SERVER_NAME = os.environ['SERVER_NAME']  # configure the domain name in use
+
+    @classmethod
+    def init_app(cls, app):
+        Config.init_app(app)

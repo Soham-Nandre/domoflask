@@ -1,0 +1,20 @@
+SOURCE_FILE: test_user_model.py
+RELATIVE_PATH: tests\test_user_model.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+import unittest
+import time
+from datetime import datetime
+from app import create_app, db
+from app.models import User, AnonymousUser, Role, Permission, Follow
+
+
+class UserModelTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app('testing')
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        db.create_all()
+        Role.insert_roles()

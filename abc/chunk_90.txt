@@ -1,0 +1,10 @@
+SOURCE_FILE: views.py
+RELATIVE_PATH: app\main\views.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+current_user.follow(user)
+    db.session.commit()
+    flash('You are now following %s.' % username)
+    return redirect(url_for('.user', username=username))

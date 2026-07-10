@@ -1,0 +1,2 @@
+C:\Users\soashokn\Desktop\python\flasky-master\abc
+C:\Users\soashokn\Desktop\python\flasky-master\faiss_index

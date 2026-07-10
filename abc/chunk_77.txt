@@ -1,0 +1,8 @@
+SOURCE_FILE: views.py
+RELATIVE_PATH: app\main\views.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+return render_template('index.html', form=form, posts=posts,
+                           show_followed=show_followed, pagination=pagination)

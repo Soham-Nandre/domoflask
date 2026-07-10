@@ -1,0 +1,9 @@
+SOURCE_FILE: forms.py
+RELATIVE_PATH: app\main\forms.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+class CommentForm(FlaskForm):
+    body = StringField('Enter your comment', validators=[DataRequired()])
+    submit = SubmitField('Submit')

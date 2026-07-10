@@ -1,0 +1,20 @@
+SOURCE_FILE: test_selenium.py
+RELATIVE_PATH: tests\test_selenium.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+@classmethod
+    def tearDownClass(cls):
+        if cls.client:
+            # stop the flask server and the browser
+            cls.client.get('http://localhost:5000/shutdown')
+            cls.client.quit()
+            cls.server_thread.join()
+
+            # destroy database
+            db.drop_all()
+            db.session.remove()
+
+            # remove application context
+            cls.app_context.pop()

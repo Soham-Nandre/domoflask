@@ -1,0 +1,15 @@
+SOURCE_FILE: views.py
+RELATIVE_PATH: app\main\views.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+@main.route('/shutdown')
+def server_shutdown():
+    if not current_app.testing:
+        abort(404)
+    shutdown = request.environ.get('werkzeug.server.shutdown')
+    if not shutdown:
+        abort(500)
+    shutdown()
+    return 'Shutting down...'

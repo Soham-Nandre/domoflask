@@ -1,0 +1,11 @@
+SOURCE_FILE: views.py
+RELATIVE_PATH: app\main\views.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+follows = [{'user': item.follower, 'timestamp': item.timestamp}
+               for item in pagination.items]
+    return render_template('followers.html', user=user, title="Followers of",
+                           endpoint='.followers', pagination=pagination,
+                           follows=follows)

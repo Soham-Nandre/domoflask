@@ -1,0 +1,15 @@
+SOURCE_FILE: test_api.py
+RELATIVE_PATH: tests\test_api.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+# write a comment
+        response = self.client.post(
+            '/api/v1/posts/{}/comments/'.format(post.id),
+            headers=self.get_api_headers('susan@example.com', 'dog'),
+            data=json.dumps({'body': 'Good [post](http://example.com)!'}))
+        self.assertEqual(response.status_code, 201)
+        json_response = json.loads(response.get_data(as_text=True))
+        url = response.headers.get('Location')
+        self.assertIsNotNone(url)

@@ -1,0 +1,11 @@
+SOURCE_FILE: forms.py
+RELATIVE_PATH: app\auth\forms.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
+from wtforms import ValidationError
+from ..models import User

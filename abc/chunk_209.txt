@@ -1,0 +1,11 @@
+SOURCE_FILE: test_api.py
+RELATIVE_PATH: tests\test_api.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+# get list of posts with the unconfirmed account
+        response = self.client.get(
+            '/api/v1/posts/',
+            headers=self.get_api_headers('john@example.com', 'cat'))
+        self.assertEqual(response.status_code, 403)

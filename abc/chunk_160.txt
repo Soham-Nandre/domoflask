@@ -1,0 +1,8 @@
+SOURCE_FILE: flasky.py
+RELATIVE_PATH: flasky.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+profile_dir=profile_dir)
+    app.run()

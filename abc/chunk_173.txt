@@ -1,0 +1,10 @@
+SOURCE_FILE: 1b966e7f4b9e_post_model.py
+RELATIVE_PATH: migrations\versions\1b966e7f4b9e_post_model.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index('ix_posts_timestamp', 'posts', ['timestamp'], unique=False)
+    ### end Alembic commands ###

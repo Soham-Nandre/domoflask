@@ -1,0 +1,8 @@
+SOURCE_FILE: test_api.py
+RELATIVE_PATH: tests\test_api.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+self.assertEqual(json_response.get('count', 0), 1)
+        self.assertEqual(json_response['posts'][0], json_post)

@@ -1,0 +1,11 @@
+SOURCE_FILE: fake.py
+RELATIVE_PATH: app\fake.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+from random import randint
+from sqlalchemy.exc import IntegrityError
+from faker import Faker
+from . import db
+from .models import User, Post

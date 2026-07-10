@@ -1,0 +1,8 @@
+SOURCE_FILE: exceptions.py
+RELATIVE_PATH: app\exceptions.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+class ValidationError(ValueError):
+    pass

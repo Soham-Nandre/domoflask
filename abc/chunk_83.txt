@@ -1,0 +1,10 @@
+SOURCE_FILE: views.py
+RELATIVE_PATH: app\main\views.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+form.name.data = user.name
+    form.location.data = user.location
+    form.about_me.data = user.about_me
+    return render_template('edit_profile.html', form=form, user=user)

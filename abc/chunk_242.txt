@@ -1,0 +1,11 @@
+SOURCE_FILE: test_selenium.py
+RELATIVE_PATH: tests\test_selenium.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+# create the database and populate with some fake data
+            db.create_all()
+            Role.insert_roles()
+            fake.users(10)
+            fake.posts(10)

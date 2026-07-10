@@ -1,0 +1,13 @@
+SOURCE_FILE: models.py
+RELATIVE_PATH: app\models.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+@staticmethod
+    def add_self_follows():
+        for user in User.query.all():
+            if not user.is_following(user):
+                user.follow(user)
+                db.session.add(user)
+                db.session.commit()

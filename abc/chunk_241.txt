@@ -1,0 +1,17 @@
+SOURCE_FILE: test_selenium.py
+RELATIVE_PATH: tests\test_selenium.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+# skip these tests if the browser could not be started
+        if cls.client:
+            # create the application
+            cls.app = create_app('testing')
+            cls.app_context = cls.app.app_context()
+            cls.app_context.push()
+
+            # suppress logging to keep unittest output clean
+            import logging
+            logger = logging.getLogger('werkzeug')
+            logger.setLevel("ERROR")

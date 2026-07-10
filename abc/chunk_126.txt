@@ -1,0 +1,16 @@
+SOURCE_FILE: models.py
+RELATIVE_PATH: app\models.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+def unfollow(self, user):
+        f = self.followed.filter_by(followed_id=user.id).first()
+        if f:
+            db.session.delete(f)
+
+    def is_following(self, user):
+        if user.id is None:
+            return False
+        return self.followed.filter_by(
+            followed_id=user.id).first() is not None

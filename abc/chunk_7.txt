@@ -1,0 +1,10 @@
+SOURCE_FILE: comments.py
+RELATIVE_PATH: app\api\comments.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+@api.route('/comments/<int:id>')
+def get_comment(id):
+    comment = Comment.query.get_or_404(id)
+    return jsonify(comment.to_json())

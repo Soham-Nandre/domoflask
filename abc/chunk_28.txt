@@ -1,0 +1,10 @@
+SOURCE_FILE: forms.py
+RELATIVE_PATH: app\auth\forms.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+password = PasswordField('Password', validators=[
+        DataRequired(), EqualTo('password2', message='Passwords must match.')])
+    password2 = PasswordField('Confirm password', validators=[DataRequired()])
+    submit = SubmitField('Register')

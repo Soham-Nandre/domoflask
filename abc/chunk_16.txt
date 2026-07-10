@@ -1,0 +1,12 @@
+SOURCE_FILE: posts.py
+RELATIVE_PATH: app\api\posts.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+return jsonify({
+        'posts': [post.to_json() for post in posts],
+        'prev': prev,
+        'next': next,
+        'count': pagination.total
+    })

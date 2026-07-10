@@ -1,0 +1,11 @@
+SOURCE_FILE: fake.py
+RELATIVE_PATH: app\fake.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+try:
+            db.session.commit()
+            i += 1
+        except IntegrityError:
+            db.session.rollback()

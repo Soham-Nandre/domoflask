@@ -1,0 +1,386 @@
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\config.py
+========================================================================================================================
+
+from logging import StreamHandler
+from logging.handlers import SMTPHandler
+from logging.handlers import SysLogHandler
+from werkzeug.contrib.fixers import ProxyFix
+from werkzeug.middleware.proxy_fix import ProxyFix
+import logging
+import os
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\flasky.py
+========================================================================================================================
+
+from app import create_app, db
+from app.models import User, Follow, Role, Permission, Post, Comment
+from dotenv import load_dotenv
+from flask_migrate import Migrate, upgrade
+from werkzeug.contrib.profiler import ProfilerMiddleware
+import click
+import coverage
+import os
+import subprocess
+import sys
+import unittest
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\decorators.py
+========================================================================================================================
+
+from flask import abort
+from flask_login import current_user
+from functools import wraps
+from models import Permission
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\email.py
+========================================================================================================================
+
+from  import mail
+from flask import current_app, render_template
+from flask_mail import Message
+from threading import Thread
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\fake.py
+========================================================================================================================
+
+from  import db
+from faker import Faker
+from models import User, Post
+from random import randint
+from sqlalchemy.exc import IntegrityError
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\models.py
+========================================================================================================================
+
+from  import db, login_manager
+from app.exceptions import ValidationError
+from datetime import datetime
+from flask import current_app, request, url_for
+from flask_login import UserMixin, AnonymousUserMixin
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from markdown import markdown
+from werkzeug.security import generate_password_hash, check_password_hash
+import bleach
+import hashlib
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\__init__.py
+========================================================================================================================
+
+from api import api as api_blueprint
+from auth import auth as auth_blueprint
+from config import config
+from flask import Flask
+from flask_bootstrap import Bootstrap
+from flask_login import LoginManager
+from flask_mail import Mail
+from flask_moment import Moment
+from flask_pagedown import PageDown
+from flask_sqlalchemy import SQLAlchemy
+from flask_sslify import SSLify
+from main import main as main_blueprint
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\env.py
+========================================================================================================================
+
+from __future__ import with_statement
+from alembic import context
+from flask import current_app
+from logging.config import fileConfig
+from sqlalchemy import engine_from_config, pool
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\tests\test_api.py
+========================================================================================================================
+
+from app import create_app, db
+from app.models import User, Role, Post, Comment
+from base64 import b64encode
+import json
+import re
+import unittest
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\tests\test_basics.py
+========================================================================================================================
+
+from app import create_app, db
+from flask import current_app
+import unittest
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\tests\test_client.py
+========================================================================================================================
+
+from app import create_app, db
+from app.models import User, Role
+import re
+import unittest
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\tests\test_selenium.py
+========================================================================================================================
+
+from app import create_app, db, fake
+from app.models import Role, User, Post
+from selenium import webdriver
+import logging
+import re
+import threading
+import time
+import unittest
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\tests\test_user_model.py
+========================================================================================================================
+
+from app import create_app, db
+from app.models import User, AnonymousUser, Role, Permission, Follow
+from datetime import datetime
+import time
+import unittest
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\api\authentication.py
+========================================================================================================================
+
+from  import api
+from errors import unauthorized, forbidden
+from flask import g, jsonify
+from flask_httpauth import HTTPBasicAuth
+from models import User
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\api\comments.py
+========================================================================================================================
+
+from  import api
+from  import db
+from decorators import permission_required
+from flask import jsonify, request, g, url_for, current_app
+from models import Post, Permission, Comment
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\api\decorators.py
+========================================================================================================================
+
+from errors import forbidden
+from flask import g
+from functools import wraps
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\api\errors.py
+========================================================================================================================
+
+from  import api
+from app.exceptions import ValidationError
+from flask import jsonify
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\api\posts.py
+========================================================================================================================
+
+from  import api
+from  import db
+from decorators import permission_required
+from errors import forbidden
+from flask import jsonify, request, g, url_for, current_app
+from models import Post, Permission
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\api\users.py
+========================================================================================================================
+
+from  import api
+from flask import jsonify, request, current_app, url_for
+from models import User, Post
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\api\__init__.py
+========================================================================================================================
+
+from  import authentication, posts, users, comments, errors
+from flask import Blueprint
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\auth\forms.py
+========================================================================================================================
+
+from flask_wtf import FlaskForm
+from models import User
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import ValidationError
+from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\auth\views.py
+========================================================================================================================
+
+from  import auth
+from  import db
+from email import send_email
+from flask import render_template, redirect, request, url_for, flash
+from flask_login import login_user, logout_user, login_required, current_user
+from forms import LoginForm, RegistrationForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
+from models import User
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\auth\__init__.py
+========================================================================================================================
+
+from  import views
+from flask import Blueprint
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\main\errors.py
+========================================================================================================================
+
+from  import main
+from flask import render_template, request, jsonify
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\main\forms.py
+========================================================================================================================
+
+from flask_pagedown.fields import PageDownField
+from flask_wtf import FlaskForm
+from models import Role, User
+from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField
+from wtforms import ValidationError
+from wtforms.validators import DataRequired, Length, Email, Regexp
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\main\views.py
+========================================================================================================================
+
+from  import db
+from  import main
+from decorators import admin_required, permission_required
+from flask import render_template, redirect, url_for, abort, flash, request, current_app, make_response
+from flask_login import login_required, current_user
+from flask_sqlalchemy import get_debug_queries
+from forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm
+from models import Permission, Role, User, Post, Comment
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\app\main\__init__.py
+========================================================================================================================
+
+from  import views, errors
+from flask import Blueprint
+from models import Permission
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\versions\190163627111_account_confirmation.py
+========================================================================================================================
+
+from alembic import op
+import sqlalchemy as sa
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\versions\198b0eebcf9_caching_of_avatar_hashes.py
+========================================================================================================================
+
+from alembic import op
+import sqlalchemy as sa
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\versions\1b966e7f4b9e_post_model.py
+========================================================================================================================
+
+from alembic import op
+import sqlalchemy as sa
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\versions\2356a38169ea_followers.py
+========================================================================================================================
+
+from alembic import op
+import sqlalchemy as sa
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\versions\288cd3dc5a8_rich_text_posts.py
+========================================================================================================================
+
+from alembic import op
+import sqlalchemy as sa
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\versions\38c4e85512a9_initial_migration.py
+========================================================================================================================
+
+from alembic import op
+import sqlalchemy as sa
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\versions\456a945560f6_login_support.py
+========================================================================================================================
+
+from alembic import op
+import sqlalchemy as sa
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\versions\51f5ccfba190_comments.py
+========================================================================================================================
+
+from alembic import op
+import sqlalchemy as sa
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\versions\56ed7d33de8d_user_roles.py
+========================================================================================================================
+
+from alembic import op
+import sqlalchemy as sa
+
+
+========================================================================================================================
+FILE: C:\Users\soashokn\Desktop\python\flasky-master\migrations\versions\d66f086b258_user_information.py
+========================================================================================================================
+
+from alembic import op
+import sqlalchemy as sa
+
+

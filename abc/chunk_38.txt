@@ -1,0 +1,9 @@
+SOURCE_FILE: views.py
+RELATIVE_PATH: app\auth\views.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+return redirect(next)
+        flash('Invalid email or password.')
+    return render_template('auth/login.html', form=form)

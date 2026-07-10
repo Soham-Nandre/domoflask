@@ -1,0 +1,8 @@
+SOURCE_FILE: config.py
+RELATIVE_PATH: config.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))

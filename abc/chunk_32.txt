@@ -1,0 +1,11 @@
+SOURCE_FILE: forms.py
+RELATIVE_PATH: app\auth\forms.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+class PasswordResetForm(FlaskForm):
+    password = PasswordField('New Password', validators=[
+        DataRequired(), EqualTo('password2', message='Passwords must match')])
+    password2 = PasswordField('Confirm password', validators=[DataRequired()])
+    submit = SubmitField('Reset Password')

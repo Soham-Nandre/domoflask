@@ -1,0 +1,20 @@
+SOURCE_FILE: 1b966e7f4b9e_post_model.py
+RELATIVE_PATH: migrations\versions\1b966e7f4b9e_post_model.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+"""post model
+
+Revision ID: 1b966e7f4b9e
+Revises: 198b0eebcf9
+Create Date: 2013-12-31 00:00:14.700591
+
+"""
+
+# revision identifiers, used by Alembic.
+revision = '1b966e7f4b9e'
+down_revision = '198b0eebcf9'
+
+from alembic import op
+import sqlalchemy as sa

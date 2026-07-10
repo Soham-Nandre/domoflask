@@ -1,0 +1,7 @@
+SOURCE_FILE: d66f086b258_user_information.py
+RELATIVE_PATH: migrations\versions\d66f086b258_user_information.py
+CATEGORY: python_code
+EXTENSION: .py
+
+CONTENT:
+### end Alembic commands ###
