@@ -1,22 +1,32 @@
-SOURCE_FILE: fake.py
-RELATIVE_PATH: app\fake.py
+SOURCE_FILE: config.py
+RELATIVE_PATH: config.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-def users(count=100):
-    fake = Faker()
-    i = 0
-    while i < count:
-        u = User(email=fake.email(),
-                 username=fake.user_name(),
-                 password='password',
-                 confirmed=True,
-                 name=fake.name(),
-                 location=fake.city(),
-                 about_me=fake.text(),
-                 member_since=fake.past_date())
-        db.session.add(u)
-        try:
-            db.session.commit()
-            i += 1
+# email errors to the administrators
+        import logging
+        from logging.handlers import SMTPHandler
+        credentials = None
+        secure = None
+        if getattr(cls, 'MAIL_USERNAME', None) is not None:
+            credentials = (cls.MAIL_USERNAME, cls.MAIL_PASSWORD)
+            if getattr(cls, 'MAIL_USE_TLS', None):
+                secure = ()
+        mail_handler = SMTPHandler(
+            mailhost=(cls.MAIL_SERVER, cls.MAIL_PORT),
+            fromaddr=cls.FLASKY_MAIL_SENDER,
+            toaddrs=[cls.FLASKY_ADMIN],
+            subject=cls.FLASKY_MAIL_SUBJECT_PREFIX + ' Application Error',
+            credentials=credentials,
+            secure=secure)
+        mail_handler.setLevel(logging.ERROR)
+        app.logger.addHandler(mail_handler)
+
+
+class HerokuConfig(ProductionConfig):
+    SSL_REDIRECT = True if os.environ.get('DYNO') else False
+
+    @classmethod
+    def init_app(cls, app):
+        ProductionConfig.init_app(app)

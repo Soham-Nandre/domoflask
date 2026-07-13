@@ -1,11 +1,21 @@
-SOURCE_FILE: fake.py
-RELATIVE_PATH: app\fake.py
+SOURCE_FILE: config.py
+RELATIVE_PATH: config.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-from random import randint
-from sqlalchemy.exc import IntegrityError
-from faker import Faker
-from . import db
-from .models import User, Post
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
+        'sqlite://'
+    WTF_CSRF_ENABLED = False
+
+
+class ProductionConfig(Config):
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+    SERVER_NAME = os.environ.get('SERVER_NAME')  # configure the domain name in use
+
+    @classmethod
+    def init_app(cls, app):
+        Config.init_app(app)

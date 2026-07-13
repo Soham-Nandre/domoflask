@@ -1,20 +1,29 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\main\views.py
+SOURCE_FILE: test_api.py
+RELATIVE_PATH: tests\test_api.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-@main.route('/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit(id):
-    post = Post.query.get_or_404(id)
-    if current_user != post.author and \
-            not current_user.can(Permission.ADMIN):
-        abort(403)
-    form = PostForm()
-    if form.validate_on_submit():
-        post.body = form.body.data
-        db.session.add(post)
+# get the new comment
+        response = self.client.get(
+            url,
+            headers=self.get_api_headers('john@example.com', 'cat'))
+        self.assertEqual(response.status_code, 200)
+        json_response = json.loads(response.get_data(as_text=True))
+        self.assertEqual('http://localhost' + json_response['url'], url)
+        self.assertEqual(json_response['body'],
+                        'Good [post](http://example.com)!')
+
+        # add another comment
+        comment = Comment(body='Thank you!', author=u1, post=post)
+        db.session.add(comment)
         db.session.commit()
-        flash('The post has been updated.')
-        return redirect(url_for('.post', id=post.id))
+
+        # get the two comments from the post
+        response = self.client.get(
+            '/api/v1/posts/{}/comments/'.format(post.id),
+            headers=self.get_api_headers('susan@example.com', 'dog'))
+        self.assertEqual(response.status_code, 200)
+        json_response = json.loads(response.get_data(as_text=True))
+        self.assertIsNotNone(json_response.get('comments'))
+        self.assertEqual(json_response.get('count', 0), 2)

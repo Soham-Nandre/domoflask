@@ -1,10 +1,11 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\main\views.py
+SOURCE_FILE: test_client.py
+RELATIVE_PATH: tests\test_client.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-current_user.unfollow(user)
-    db.session.commit()
-    flash('You are not following %s anymore.' % username)
-    return redirect(url_for('.user', username=username))
+# log out
+        response = self.client.get('/auth/logout', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('You have been logged out' in response.get_data(
+            as_text=True))

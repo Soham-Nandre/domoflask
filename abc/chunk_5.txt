@@ -1,18 +1,32 @@
-SOURCE_FILE: comments.py
-RELATIVE_PATH: app\api\comments.py
+SOURCE_FILE: errors.py
+RELATIVE_PATH: app\api\errors.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-@api.route('/comments/')
-def get_comments():
-    page = request.args.get('page', 1, type=int)
-    pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(
-        page=page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
-        error_out=False)
-    comments = pagination.items
-    prev = None
-    if pagination.has_prev:
-        prev = url_for('api.get_comments', page=page-1)
-    next = None
-    if pagination.has_next:
+from flask import jsonify
+from app.exceptions import ValidationError
+from . import api
+
+
+def bad_request(message):
+    response = jsonify({'error': 'bad request', 'message': message})
+    response.status_code = 400
+    return response
+
+
+def unauthorized(message):
+    response = jsonify({'error': 'unauthorized', 'message': message})
+    response.status_code = 401
+    return response
+
+
+def forbidden(message):
+    response = jsonify({'error': 'forbidden', 'message': message})
+    response.status_code = 403
+    return response
+
+
+@api.errorhandler(ValidationError)
+def validation_error(e):
+    return bad_request(e.args[0])

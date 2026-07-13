@@ -1,8 +1,0 @@
-SOURCE_FILE: test_basics.py
-RELATIVE_PATH: tests\test_basics.py
-CATEGORY: python_code
-EXTENSION: .py
-
-CONTENT:
-def test_app_is_testing(self):
-        self.assertTrue(current_app.config['TESTING'])

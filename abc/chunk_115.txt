@@ -1,8 +1,0 @@
-SOURCE_FILE: models.py
-RELATIVE_PATH: app\models.py
-CATEGORY: python_code
-EXTENSION: .py
-
-CONTENT:
-self.avatar_hash = self.gravatar_hash()
-        self.follow(self)

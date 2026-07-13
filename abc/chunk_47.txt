@@ -1,12 +1,11 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\auth\views.py
+SOURCE_FILE: models.py
+RELATIVE_PATH: app\models.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-'auth/email/reset_password',
-                       user=user, token=token)
-        flash('An email with instructions to reset your password has been '
-              'sent to you.')
-        return redirect(url_for('auth.login'))
-    return render_template('auth/reset_password.html', form=form)
+foreign_keys=[Follow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')

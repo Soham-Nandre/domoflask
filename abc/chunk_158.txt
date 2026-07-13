@@ -1,9 +1,0 @@
-SOURCE_FILE: flasky.py
-RELATIVE_PATH: flasky.py
-CATEGORY: python_code
-EXTENSION: .py
-
-CONTENT:
-COV.html_report(directory=covdir)
-        print('HTML version: file://%s/index.html' % covdir)
-        COV.erase()

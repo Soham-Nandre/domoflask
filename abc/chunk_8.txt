@@ -1,18 +1,37 @@
-SOURCE_FILE: comments.py
-RELATIVE_PATH: app\api\comments.py
+SOURCE_FILE: users.py
+RELATIVE_PATH: app\api\users.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-@api.route('/posts/<int:id>/comments/')
-def get_post_comments(id):
-    post = Post.query.get_or_404(id)
+from flask import jsonify, request, current_app, url_for
+from . import api
+from ..models import User, Post
+
+
+@api.route('/users/<int:id>')
+def get_user(id):
+    user = User.query.get_or_404(id)
+    return jsonify(user.to_json())
+
+
+@api.route('/users/<int:id>/posts/')
+def get_user_posts(id):
+    user = User.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
-    pagination = post.comments.order_by(Comment.timestamp.asc()).paginate(
-        page=page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+    pagination = user.posts.order_by(Post.timestamp.desc()).paginate(
+        page=page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False)
-    comments = pagination.items
+    posts = pagination.items
     prev = None
     if pagination.has_prev:
-        prev = url_for('api.get_post_comments', id=id, page=page-1)
+        prev = url_for('api.get_user_posts', id=id, page=page-1)
     next = None
+    if pagination.has_next:
+        next = url_for('api.get_user_posts', id=id, page=page+1)
+    return jsonify({
+        'posts': [post.to_json() for post in posts],
+        'prev': prev,
+        'next': next,
+        'count': pagination.total
+    })

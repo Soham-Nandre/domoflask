@@ -1,17 +1,29 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\main\views.py
+SOURCE_FILE: test_selenium.py
+RELATIVE_PATH: tests\test_selenium.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-@main.route('/followed_by/<username>')
-def followed_by(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('.index'))
-    page = request.args.get('page', 1, type=int)
-    pagination = user.followed.paginate(
-        page=page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
-        error_out=False)
-    follows = [{'user': item.followed, 'timestamp': item.timestamp}
+def tearDown(self):
+        pass
+    
+    def test_admin_home_page(self):
+        # navigate to home page
+        self.client.get('http://localhost:5000/')
+        self.assertTrue(re.search('Hello,\s+Stranger!',
+                                  self.client.page_source))
+
+        # navigate to login page
+        self.client.find_element_by_link_text('Log In').click()
+        self.assertIn('<h1>Login</h1>', self.client.page_source)
+
+        # login
+        self.client.find_element_by_name('email').\
+            send_keys('john@example.com')
+        self.client.find_element_by_name('password').send_keys('cat')
+        self.client.find_element_by_name('submit').click()
+        self.assertTrue(re.search('Hello,\s+john!', self.client.page_source))
+
+        # navigate to the user's profile page
+        self.client.find_element_by_link_text('Profile').click()
+        self.assertIn('<h1>john</h1>', self.client.page_source)

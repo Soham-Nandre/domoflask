@@ -2,8 +2,7 @@ services:
   app:
     image: ${DOCKERHUB_USERNAME}/${APP_NAME}:${IMAGE_TAG}
     restart: unless-stopped
+    ports:
+      - "5000:5000"
     env_file:
       - .env
-    # Note: Application port not specified. Add ports mapping when port is known.
-    # Example: ports:
-    #   - "5000:5000"

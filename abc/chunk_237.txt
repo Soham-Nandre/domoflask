@@ -1,7 +1,0 @@
-SOURCE_FILE: test_client.py
-RELATIVE_PATH: tests\test_client.py
-CATEGORY: python_code
-EXTENSION: .py
-
-CONTENT:
-as_text=True))

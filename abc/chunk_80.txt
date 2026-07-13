@@ -1,12 +1,32 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\main\views.py
+SOURCE_FILE: test_api.py
+RELATIVE_PATH: tests\test_api.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-flash('Your profile has been updated.')
-        return redirect(url_for('.user', username=current_user.username))
-    form.name.data = current_user.name
-    form.location.data = current_user.location
-    form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html', form=form)
+# issue a request with a bad token
+        response = self.client.get(
+            '/api/v1/posts/',
+            headers=self.get_api_headers('bad-token', ''))
+        self.assertEqual(response.status_code, 401)
+
+        # get a token
+        response = self.client.post(
+            '/api/v1/tokens/',
+            headers=self.get_api_headers('john@example.com', 'cat'))
+        self.assertEqual(response.status_code, 200)
+        json_response = json.loads(response.get_data(as_text=True))
+        self.assertIsNotNone(json_response.get('token'))
+        token = json_response['token']
+
+        # issue a request with the token
+        response = self.client.get(
+            '/api/v1/posts/',
+            headers=self.get_api_headers(token, ''))
+        self.assertEqual(response.status_code, 200)
+
+    def test_anonymous(self):
+        response = self.client.get(
+            '/api/v1/posts/',
+            headers=self.get_api_headers('', ''))
+        self.assertEqual(response.status_code, 401)

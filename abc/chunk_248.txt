@@ -1,9 +1,0 @@
-SOURCE_FILE: test_selenium.py
-RELATIVE_PATH: tests\test_selenium.py
-CATEGORY: python_code
-EXTENSION: .py
-
-CONTENT:
-# navigate to the user's profile page
-        self.client.find_element_by_link_text('Profile').click()
-        self.assertIn('<h1>john</h1>', self.client.page_source)

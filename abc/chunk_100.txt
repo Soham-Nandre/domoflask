@@ -1,16 +1,31 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\main\views.py
+SOURCE_FILE: test_user_model.py
+RELATIVE_PATH: tests\test_user_model.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-@main.route('/moderate/disable/<int:id>')
-@login_required
-@permission_required(Permission.MODERATE)
-def moderate_disable(id):
-    comment = Comment.query.get_or_404(id)
-    comment.disabled = True
-    db.session.add(comment)
-    db.session.commit()
-    return redirect(url_for('.moderate',
-                            page=request.args.get('page', 1, type=int)))
+def test_administrator_role(self):
+        r = Role.query.filter_by(name='Administrator').first()
+        u = User(email='john@example.com', password='cat', role=r)
+        self.assertTrue(u.can(Permission.FOLLOW))
+        self.assertTrue(u.can(Permission.COMMENT))
+        self.assertTrue(u.can(Permission.WRITE))
+        self.assertTrue(u.can(Permission.MODERATE))
+        self.assertTrue(u.can(Permission.ADMIN))
+
+    def test_anonymous_user(self):
+        u = AnonymousUser()
+        self.assertFalse(u.can(Permission.FOLLOW))
+        self.assertFalse(u.can(Permission.COMMENT))
+        self.assertFalse(u.can(Permission.WRITE))
+        self.assertFalse(u.can(Permission.MODERATE))
+        self.assertFalse(u.can(Permission.ADMIN))
+
+    def test_timestamps(self):
+        u = User(password='cat')
+        db.session.add(u)
+        db.session.commit()
+        self.assertTrue(
+            (datetime.utcnow() - u.member_since).total_seconds() < 3)
+        self.assertTrue(
+            (datetime.utcnow() - u.last_seen).total_seconds() < 3)

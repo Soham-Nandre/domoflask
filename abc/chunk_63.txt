@@ -1,14 +1,35 @@
-SOURCE_FILE: errors.py
-RELATIVE_PATH: app\main\errors.py
+SOURCE_FILE: flasky.py
+RELATIVE_PATH: flasky.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-@main.app_errorhandler(404)
-def page_not_found(e):
-    if request.accept_mimetypes.accept_json and \
-            not request.accept_mimetypes.accept_html:
-        response = jsonify({'error': 'not found'})
-        response.status_code = 404
-        return response
-    return render_template('404.html'), 404
+import unittest
+    if test_names:
+        tests = unittest.TestLoader().loadTestsFromNames(test_names)
+    else:
+        tests = unittest.TestLoader().discover('tests')
+    unittest.TextTestRunner(verbosity=2).run(tests)
+    if COV:
+        COV.stop()
+        COV.save()
+        print('Coverage Summary:')
+        COV.report()
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        covdir = os.path.join(basedir, 'tmp/coverage')
+        COV.html_report(directory=covdir)
+        print('HTML version: file://%s/index.html' % covdir)
+        COV.erase()
+
+
+@app.cli.command()
+@click.option('--length', default=25,
+              help='Number of functions to include in the profiler report.')
+@click.option('--profile-dir', default=None,
+              help='Directory where profiler data files are saved.')
+def profile(length, profile_dir):
+    """Start the application under the code profiler."""
+    from werkzeug.contrib.profiler import ProfilerMiddleware
+    app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[length],
+                                      profile_dir=profile_dir)
+    app.run()

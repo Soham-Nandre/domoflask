@@ -1,18 +1,26 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\main\views.py
+SOURCE_FILE: test_api.py
+RELATIVE_PATH: tests\test_api.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-user.location = form.location.data
-        user.about_me = form.about_me.data
-        db.session.add(user)
-        db.session.commit()
-        flash('The profile has been updated.')
-        return redirect(url_for('.user', username=user.username))
-    form.email.data = user.email
-    form.username.data = user.username
-    form.confirmed.data = user.confirmed
-    form.role.data = user.role_id
-    form.name.data = user.name
-    form.location.data = user.location
+# write a post
+        response = self.client.post(
+            '/api/v1/posts/',
+            headers=self.get_api_headers('john@example.com', 'cat'),
+            data=json.dumps({'body': 'body of the *blog* post'}))
+        self.assertEqual(response.status_code, 201)
+        url = response.headers.get('Location')
+        self.assertIsNotNone(url)
+
+        # get the new post
+        response = self.client.get(
+            url,
+            headers=self.get_api_headers('john@example.com', 'cat'))
+        self.assertEqual(response.status_code, 200)
+        json_response = json.loads(response.get_data(as_text=True))
+        self.assertEqual('http://localhost' + json_response['url'], url)
+        self.assertEqual(json_response['body'], 'body of the *blog* post')
+        self.assertEqual(json_response['body_html'],
+                        '<p>body of the <em>blog</em> post</p>')
+        json_post = json_response

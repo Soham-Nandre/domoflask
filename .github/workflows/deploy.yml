@@ -2,11 +2,8 @@ name: Deploy to Azure VM with Docker Compose
 
 on:
   push:
-    branches: [ main ]
-
-env:
-  APP_NAME: flasky
-  IMAGE_TAG: ${{ github.sha }}
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -30,21 +27,19 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.APP_NAME }}:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.APP_NAME }}:latest
 
       - name: Generate .env file
         run: |
           cat << EOF > .env
           DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-          APP_NAME=${{ env.APP_NAME }}
-          IMAGE_TAG=${{ env.IMAGE_TAG }}
-          # Database configuration (example for SQLite)
-          # DATABASE_URL=sqlite:///app.db
-          # Flask configuration
-          # SECRET_KEY=your-secret-key-here
-          # FLASK_APP=flasky.py
-          # FLASK_ENV=production
+          APP_NAME=${{ vars.APP_NAME }}
+          IMAGE_TAG=${{ github.sha }}
+          FLASK_CONFIG=production
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          FLASK_COVERAGE=0
           EOF
 
       - name: Create remote directory

@@ -1,9 +1,21 @@
 SOURCE_FILE: views.py
-RELATIVE_PATH: app\auth\views.py
+RELATIVE_PATH: app\main\views.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-return redirect(next)
-        flash('Invalid email or password.')
-    return render_template('auth/login.html', form=form)
+@main.route('/followers/<username>')
+def followers(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('.index'))
+    page = request.args.get('page', 1, type=int)
+    pagination = user.followers.paginate(
+        page=page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+        error_out=False)
+    follows = [{'user': item.follower, 'timestamp': item.timestamp}
+               for item in pagination.items]
+    return render_template('followers.html', user=user, title="Followers of",
+                           endpoint='.followers', pagination=pagination,
+                           follows=follows)

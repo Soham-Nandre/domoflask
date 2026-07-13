@@ -1,7 +1,0 @@
-SOURCE_FILE: test_user_model.py
-RELATIVE_PATH: tests\test_user_model.py
-CATEGORY: python_code
-EXTENSION: .py
-
-CONTENT:
-self.assertEqual('/api/v1/users/' + str(u.id), json_user['url'])

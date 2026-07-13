@@ -1,11 +1,20 @@
-SOURCE_FILE: comments.py
-RELATIVE_PATH: app\api\comments.py
+SOURCE_FILE: decorators.py
+RELATIVE_PATH: app\api\decorators.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-from flask import jsonify, request, g, url_for, current_app
-from .. import db
-from ..models import Post, Permission, Comment
-from . import api
-from .decorators import permission_required
+from functools import wraps
+from flask import g
+from .errors import forbidden
+
+
+def permission_required(permission):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not g.current_user.can(permission):
+                return forbidden('Insufficient permissions')
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator

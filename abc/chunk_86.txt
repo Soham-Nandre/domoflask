@@ -1,10 +1,24 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\main\views.py
+SOURCE_FILE: test_api.py
+RELATIVE_PATH: tests\test_api.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-error_out=False)
-    comments = pagination.items
-    return render_template('post.html', posts=[post], form=form,
-                           comments=comments, pagination=pagination)
+# add a post
+        post = Post(body='body of the post', author=u1)
+        db.session.add(post)
+        db.session.commit()
+
+        # write a comment
+        response = self.client.post(
+            '/api/v1/posts/{}/comments/'.format(post.id),
+            headers=self.get_api_headers('susan@example.com', 'dog'),
+            data=json.dumps({'body': 'Good [post](http://example.com)!'}))
+        self.assertEqual(response.status_code, 201)
+        json_response = json.loads(response.get_data(as_text=True))
+        url = response.headers.get('Location')
+        self.assertIsNotNone(url)
+        self.assertEqual(json_response['body'],
+                        'Good [post](http://example.com)!')
+        self.assertEqual(
+            re.sub('<.*?>', '', json_response['body_html']), 'Good post!')

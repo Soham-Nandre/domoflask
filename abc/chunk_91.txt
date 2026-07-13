@@ -1,19 +1,28 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\main\views.py
+SOURCE_FILE: test_client.py
+RELATIVE_PATH: tests\test_client.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-@main.route('/unfollow/<username>')
-@login_required
-@permission_required(Permission.FOLLOW)
-def unfollow(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('.index'))
-    if not current_user.is_following(user):
-        flash('You are not following this user.')
-        return redirect(url_for('.user', username=username))
-    current_user.unfollow(user)
-    db.session.commit()
+# login with the new account
+        response = self.client.post('/auth/login', data={
+            'email': 'john@example.com',
+            'password': 'cat'
+        }, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(re.search('Hello,\s+john!',
+                                  response.get_data(as_text=True)))
+        self.assertTrue(
+            'You have not confirmed your account yet' in response.get_data(
+                as_text=True))
+
+        # send a confirmation token
+        user = User.query.filter_by(email='john@example.com').first()
+        token = user.generate_confirmation_token()
+        response = self.client.get('/auth/confirm/{}'.format(token),
+                                   follow_redirects=True)
+        user.confirm(token)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            'You have confirmed your account' in response.get_data(
+                as_text=True))

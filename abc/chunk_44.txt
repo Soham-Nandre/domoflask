@@ -1,18 +1,38 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\auth\views.py
+SOURCE_FILE: models.py
+RELATIVE_PATH: app\models.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-@auth.route('/change-password', methods=['GET', 'POST'])
-@login_required
-def change_password():
-    form = ChangePasswordForm()
-    if form.validate_on_submit():
-        if current_user.verify_password(form.old_password.data):
-            current_user.password = form.password.data
-            db.session.add(current_user)
-            db.session.commit()
-            flash('Your password has been updated.')
-            return redirect(url_for('main.index'))
-        else:
+@staticmethod
+    def insert_roles():
+        roles = {
+            'User': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE],
+            'Moderator': [Permission.FOLLOW, Permission.COMMENT,
+                          Permission.WRITE, Permission.MODERATE],
+            'Administrator': [Permission.FOLLOW, Permission.COMMENT,
+                              Permission.WRITE, Permission.MODERATE,
+                              Permission.ADMIN],
+        }
+        default_role = 'User'
+        for r in roles:
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                role = Role(name=r)
+            role.reset_permissions()
+            for perm in roles[r]:
+                role.add_permission(perm)
+            role.default = (role.name == default_role)
+            db.session.add(role)
+        db.session.commit()
+
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+
+    def remove_permission(self, perm):
+        if self.has_permission(perm):
+            self.permissions -= perm
+
+    def reset_permissions(self):
+        self.permissions = 0

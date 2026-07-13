@@ -1,17 +1,21 @@
 SOURCE_FILE: views.py
-RELATIVE_PATH: app\auth\views.py
+RELATIVE_PATH: app\main\views.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-@auth.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower()).first()
-        if user is not None and user.verify_password(form.password.data):
-            login_user(user, form.remember_me.data)
-            next = request.args.get('next')
-            if next is None or not next.startswith('/'):
-                next = url_for('main.index')
-            return redirect(next)
+@main.route('/unfollow/<username>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def unfollow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('.index'))
+    if not current_user.is_following(user):
+        flash('You are not following this user.')
+        return redirect(url_for('.user', username=username))
+    current_user.unfollow(user)
+    db.session.commit()
+    flash('You are not following %s anymore.' % username)
+    return redirect(url_for('.user', username=username))

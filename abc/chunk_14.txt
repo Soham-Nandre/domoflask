@@ -1,12 +1,15 @@
-SOURCE_FILE: posts.py
-RELATIVE_PATH: app\api\posts.py
+SOURCE_FILE: forms.py
+RELATIVE_PATH: app\auth\forms.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-from flask import jsonify, request, g, url_for, current_app
-from .. import db
-from ..models import Post, Permission
-from . import api
-from .decorators import permission_required
-from .errors import forbidden
+class ChangeEmailForm(FlaskForm):
+    email = StringField('New Email', validators=[DataRequired(), Length(1, 64),
+                                                 Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Update Email Address')
+
+    def validate_email(self, field):
+        if User.query.filter_by(email=field.data.lower()).first():
+            raise ValidationError('Email already registered.')

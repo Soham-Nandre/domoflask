@@ -1,10 +1,23 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\auth\views.py
+SOURCE_FILE: models.py
+RELATIVE_PATH: app\models.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-return redirect(url_for('main.index'))
-        else:
-            flash('Invalid password.')
-    return render_template("auth/change_password.html", form=form)
+def reset_permissions(self):
+        self.permissions = 0
+
+    def has_permission(self, perm):
+        return self.permissions & perm == perm
+
+    def __repr__(self):
+        return '<Role %r>' % self.name
+
+
+class Follow(db.Model):
+    __tablename__ = 'follows'
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'),
+                            primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'),
+                            primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)

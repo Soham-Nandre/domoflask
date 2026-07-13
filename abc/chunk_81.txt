@@ -1,19 +1,36 @@
-SOURCE_FILE: views.py
-RELATIVE_PATH: app\main\views.py
+SOURCE_FILE: test_api.py
+RELATIVE_PATH: tests\test_api.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-@main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def edit_profile_admin(id):
-    user = User.query.get_or_404(id)
-    form = EditProfileAdminForm(user=user)
-    if form.validate_on_submit():
-        user.email = form.email.data
-        user.username = form.username.data
-        user.confirmed = form.confirmed.data
-        user.role = Role.query.get(form.role.data)
-        user.name = form.name.data
-        user.location = form.location.data
+def test_unconfirmed_account(self):
+        # add an unconfirmed user
+        r = Role.query.filter_by(name='User').first()
+        self.assertIsNotNone(r)
+        u = User(email='john@example.com', password='cat', confirmed=False,
+                 role=r)
+        db.session.add(u)
+        db.session.commit()
+
+        # get list of posts with the unconfirmed account
+        response = self.client.get(
+            '/api/v1/posts/',
+            headers=self.get_api_headers('john@example.com', 'cat'))
+        self.assertEqual(response.status_code, 403)
+
+    def test_posts(self):
+        # add a user
+        r = Role.query.filter_by(name='User').first()
+        self.assertIsNotNone(r)
+        u = User(email='john@example.com', password='cat', confirmed=True,
+                 role=r)
+        db.session.add(u)
+        db.session.commit()
+
+        # write an empty post
+        response = self.client.post(
+            '/api/v1/posts/',
+            headers=self.get_api_headers('john@example.com', 'cat'),
+            data=json.dumps({'body': ''}))
+        self.assertEqual(response.status_code, 400)

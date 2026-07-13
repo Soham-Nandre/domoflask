@@ -1,25 +1,38 @@
-SOURCE_FILE: decorators.py
-RELATIVE_PATH: app\decorators.py
+SOURCE_FILE: models.py
+RELATIVE_PATH: app\models.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-from functools import wraps
-from flask import abort
-from flask_login import current_user
-from .models import Permission
+def to_json(self):
+        json_post = {
+            'url': url_for('api.get_post', id=self.id),
+            'body': self.body,
+            'body_html': self.body_html,
+            'timestamp': self.timestamp,
+            'author_url': url_for('api.get_user', id=self.author_id),
+            'comments_url': url_for('api.get_post_comments', id=self.id),
+            'comment_count': self.comments.count()
+        }
+        return json_post
+
+    @staticmethod
+    def from_json(json_post):
+        body = json_post.get('body')
+        if body is None or body == '':
+            raise ValidationError('post does not have a body')
+        return Post(body=body)
 
 
-def permission_required(permission):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            if not current_user.can(permission):
-                abort(403)
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
+db.event.listen(Post.body, 'set', Post.on_changed_body)
 
 
-def admin_required(f):
-    return permission_required(Permission.ADMIN)(f)
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    disabled = db.Column(db.Boolean)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))

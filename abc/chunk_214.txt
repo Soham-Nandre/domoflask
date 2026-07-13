@@ -1,9 +1,0 @@
-SOURCE_FILE: test_api.py
-RELATIVE_PATH: tests\test_api.py
-CATEGORY: python_code
-EXTENSION: .py
-
-CONTENT:
-self.assertEqual(json_response['body_html'],
-                        '<p>body of the <em>blog</em> post</p>')
-        json_post = json_response

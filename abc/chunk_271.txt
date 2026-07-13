@@ -1,9 +1,0 @@
-SOURCE_FILE: test_user_model.py
-RELATIVE_PATH: tests\test_user_model.py
-CATEGORY: python_code
-EXTENSION: .py
-
-CONTENT:
-db.session.delete(u2)
-        db.session.commit()
-        self.assertTrue(Follow.query.count() == 1)

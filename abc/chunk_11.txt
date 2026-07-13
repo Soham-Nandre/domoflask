@@ -1,20 +1,19 @@
-SOURCE_FILE: decorators.py
-RELATIVE_PATH: app\api\decorators.py
+SOURCE_FILE: forms.py
+RELATIVE_PATH: app\auth\forms.py
 CATEGORY: python_code
 EXTENSION: .py
 
 CONTENT:
-from functools import wraps
-from flask import g
-from .errors import forbidden
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
+from wtforms import ValidationError
+from ..models import User
 
 
-def permission_required(permission):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            if not g.current_user.can(permission):
-                return forbidden('Insufficient permissions')
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Length(1, 64),
+                                             Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Keep me logged in')
+    submit = SubmitField('Log In')

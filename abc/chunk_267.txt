@@ -1,9 +1,0 @@
-SOURCE_FILE: test_user_model.py
-RELATIVE_PATH: tests\test_user_model.py
-CATEGORY: python_code
-EXTENSION: .py
-
-CONTENT:
-self.assertTrue('s=256' in gravatar_256)
-        self.assertTrue('r=pg' in gravatar_pg)
-        self.assertTrue('d=retro' in gravatar_retro)
