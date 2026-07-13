@@ -7,4 +7,4 @@ COPY . .
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 EXPOSE 5000
-CMD ["python", "flasky.py"]
+CMD ["flask", "run", "--host=0.0.0.0"]
